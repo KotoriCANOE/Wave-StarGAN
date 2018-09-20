@@ -37,7 +37,7 @@ class DataBase:
         bool_argument(argp, 'packed', False)
         bool_argument(argp, 'test', test)
         # pre-processing parameters
-        argp.add_argument('--processes', type=int, default=4)
+        argp.add_argument('--processes', type=int, default=2)
         argp.add_argument('--threads', type=int, default=1)
         argp.add_argument('--prefetch', type=int, default=64)
         argp.add_argument('--buffer-size', type=int, default=256)
@@ -57,8 +57,8 @@ class DataBase:
                 args.__setattr__(name, value)
         def argchoose(name, cond, tv, fv):
             argdefault(name, tv if cond else fv)
-        argchoose('batch_size', args.test, 1, 1)
-        argchoose('pp_duration', args.test, 8.0, 8.0)
+        argchoose('batch_size', args.test, 12, 12)
+        argchoose('pp_duration', args.test, 4.0, 4.0)
         argchoose('pp_smooth', args.test, 0, 0)
         argchoose('pp_noise', args.test, 0, 0)
         argchoose('pp_amplitude', args.test, 0, 0)
