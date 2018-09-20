@@ -78,9 +78,9 @@ class Model:
             tf.losses.add_loss(adv_loss)
             update_ops.append(self.loss_summary('adv_loss', adv_loss, self.g_log_losses))
             # domain classification loss
-            cls_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            cls_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
                 labels=tf.one_hot(target_domains, self.num_domains),
-                logits=domain_logit)
+                logits=domain_logit))
             tf.losses.add_loss(cls_loss)
             update_ops.append(self.loss_summary('cls_loss', cls_loss, self.g_log_losses))
             # reconstruction loss
@@ -131,11 +131,11 @@ class Model:
             tf.losses.add_loss(gp_loss)
             update_ops.append(self.loss_summary('gp_loss', gp_loss, self.d_log_losses))
             # domain classification loss
-            cls_loss = tf.nn.softmax_cross_entropy_with_logits_v2(
+            cls_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
                 labels=tf.one_hot(real_domain_label, self.num_domains),
-                logits=real_domain_logit)
+                logits=real_domain_logit))
             tf.losses.add_loss(cls_loss)
-            update_ops.append(self.loss_summary('cls_loss', cls_loss, self.g_log_losses))
+            update_ops.append(self.loss_summary('cls_loss', cls_loss, self.d_log_losses))
             # total loss
             losses = tf.losses.get_losses(loss_key)
             main_loss = tf.add_n(losses, 'main_loss')
@@ -190,7 +190,7 @@ class Model:
         opt = tf.contrib.opt.NadamOptimizer(lr)
         with tf.control_dependencies(update_ops):
             grads_vars = opt.compute_gradients(self.d_loss, model.tvars)
-            update_ops = [opt.apply_gradients(grads_vars, global_step)]
+            update_ops = [opt.apply_gradients(grads_vars)]
         # histogram for gradients and variables
         for grad, var in grads_vars:
             self.d_train_sums.append(tf.summary.histogram(var.op.name + '/grad', grad))

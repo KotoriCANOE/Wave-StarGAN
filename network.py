@@ -133,7 +133,9 @@ class Generator(GeneratorConfig):
             domains = tf.one_hot(domains, self.num_domains)
             domains = tf.reshape(domains, (-1, self.num_domains, 1, 1))
             domains_shape = tf.shape(last)
-            domains_shape[channel_index] *= self.num_domains
+            domains_mul = [1, 1, 1, 1]
+            domains_mul[channel_index] = self.num_domains
+            domains_shape *= domains_mul
             domains = tf.broadcast_to(domains, domains_shape)
             domains_shape = [None] * 4
             domains_shape[channel_index] = self.num_domains

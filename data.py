@@ -43,7 +43,7 @@ class DataBase:
         argp.add_argument('--buffer-size', type=int, default=256)
         bool_argument(argp, 'shuffle', True)
         # sample parameters
-        argp.add_argument('--pp-rate', type=int, default=48000)
+        argp.add_argument('--pp-rate', type=int, default=16000)
         argp.add_argument('--pp-duration', type=float,
             help='0: no slicing, -: fixed slicing, +: random slicing')
         argp.add_argument('--pp-smooth', type=float)
@@ -138,7 +138,7 @@ class DataBase:
         data *= norm_factor
         # wrap padding
         if samples < slice_samples:
-            data = np.pad(data, (0, slice_samples - samples), 'wrap')
+            data = np.pad(data, ((0, 0), (0, slice_samples - samples)), 'wrap')
         # random data manipulation
         data = DataPP.process(data, config)
         # return

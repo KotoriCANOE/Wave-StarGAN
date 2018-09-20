@@ -103,26 +103,11 @@ class Train:
         last_step = global_step + 1 >= self.max_steps
         logging = last_step or (self.log_frequency > 0 and
             global_step % self.log_frequency == 0)
-        # training - d train op
-        d_iters = 4
-        for _ in range(d_iters):
-            _inputs, _origins, _targets = next(data_gen)
-            feed_dict = {self.model.discriminator.training: True,
-                'Input:0': _inputs, 'OriginDomain:0': _origins,
-                'TargetDomain:0': _targets}
-            fetches = [self.d_train_op, self.model.d_losses_acc]
-            sess.run(fetches, feed_dict)
-            if logging and _ == 0:
-                fetches += [self.d_train_summary]
-                _, _, summary = sess.run(fetches, feed_dict)
-                self.train_writer.add_summary(summary, global_step)
-            else:
-                sess.run(fetches, feed_dict)
         # training - g train op
         _inputs, _origins, _targets = next(data_gen)
         feed_dict = {self.model.generator.training: True,
             'Input:0': _inputs, 'OriginDomain:0': _origins,
-            'TargetDomain:0': _targets}
+            'Domain:0': _targets}
         fetches = [self.g_train_op, self.model.g_losses_acc]
         if logging:
             fetches += [self.g_train_summary]
@@ -130,10 +115,23 @@ class Train:
             self.train_writer.add_summary(summary, global_step)
         else:
             sess.run(fetches, feed_dict, options, run_metadata)
+        # training - d train op
+        d_iters = 4
+        for _ in range(d_iters):
+            feed_dict = {self.model.discriminator.training: True,
+                'Input:0': _inputs, 'OriginDomain:0': _origins,
+                'Domain:0': _targets}
+            fetches = [self.d_train_op, self.model.d_losses_acc]
+            if logging and _ == 0:
+                fetches += [self.d_train_summary]
+                _, _, summary = sess.run(fetches, feed_dict)
+                self.train_writer.add_summary(summary, global_step)
+            else:
+                sess.run(fetches, feed_dict)
         # training - log summary
         if logging:
             # loss summary
-            fetches = [self.loss_summary] + self.model.g_log_losses
+            fetches = [self.loss_summary] + self.model.g_log_losses + self.model.d_log_losses
             train_ret = sess.run(fetches)
             self.train_writer.add_summary(train_ret[0], global_step)
             # logging
@@ -152,7 +150,7 @@ class Train:
             for _inputs, _origins, _targets in zip(
                 self.val_inputs, self.val_origins, self.val_targets):
                 feed_dict = {'Input:0': _inputs, 'OriginDomain:0': _origins,
-                    'TargetDomain:0': _targets}
+                    'Domain:0': _targets}
                 fetches = [self.model.g_losses_acc]
                 sess.run(fetches, feed_dict)
             # loss summary
