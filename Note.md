@@ -20,6 +20,7 @@ lr: 1e-4 from 0-22k, decay to 0 from 22-44k
 
 steps: 32k
 added activation before patch critic
+domain label (shape): (N, 1) => (N,)
 
 ## 06
 

@@ -5,6 +5,8 @@ import layers
 ACTIVATION = layers.Swish
 DATA_FORMAT = 'NCHW'
 
+# Generator
+
 class GeneratorConfig:
     def __init__(self):
         # format parameters
@@ -255,6 +257,7 @@ class DiscriminatorConfig:
         # model parameters
         self.activation = ACTIVATION
         self.normalization = 'Instance'
+        self.embed_size = 512
         # train parameters
         self.random_seed = 0
         self.weight_decay = 1e-6
@@ -328,6 +331,7 @@ class Discriminator(DiscriminatorConfig):
         return last
 
     def __call__(self, last, reuse=None):
+        # parameters
         format = self.data_format
         kernel1 = [1, 4]
         stride1 = [1, 2]
@@ -384,17 +388,26 @@ class Discriminator(DiscriminatorConfig):
                 last = self.EBlock(last, 64, 3, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
-                if activation: patch_critic = activation(last)
-                patch_critic = slim.conv2d(patch_critic, 1, [1, 3], [1, 1], 'SAME', format,
+                last_channels = last.shape.as_list()[-3]
+                patch_critic = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
+                    activation=activation, normalizer=normalizer, regularizer=regularizer)
+                patch_critic = slim.conv2d(patch_critic, 1, [1, 7], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
-                last_channels = last.shape.as_list()[-3]
                 last = tf.reduce_mean(last, [-2, -1] if format == 'NCHW' else [-3, -2])
+            with tf.variable_scope('FCBlock'):
+                skip = last
+                last_channels = last.shape.as_list()[-1]
+                last = slim.fully_connected(last, last_channels, activation, None,
+                    weights_regularizer=regularizer)
+                last = slim.fully_connected(last, self.embed_size, None, None,
+                    weights_regularizer=regularizer)
+                if self.embed_size == last_channels:
+                    last += skip
+                self.embeddings = last
             with tf.variable_scope('OutBlock'):
                 if self.dropout > 0:
                     last = tf.layers.dropout(last, self.dropout, training=self.training)
-                last = slim.fully_connected(last, last_channels, activation, None,
-                    weights_regularizer=regularizer)
                 last = slim.fully_connected(last, self.num_domains, None, None,
                     weights_regularizer=regularizer)
                 domain_logit = last

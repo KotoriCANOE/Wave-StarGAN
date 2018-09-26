@@ -9,7 +9,6 @@ class Model:
         self.dtype = tf.float32
         self.data_format = DATA_FORMAT
         self.in_channels = 1
-        self.out_channels = 1
         self.num_domains = None
         # collections
         self.g_train_sums = []
