@@ -32,10 +32,10 @@ class Model:
             self.inputs.set_shape(self.input_shape)
         # target domains
         if target_domains is None:
-            self.target_domains = tf.placeholder(tf.int64, [None, 1], name='Domain')
+            self.target_domains = tf.placeholder(tf.int64, [None], name='Domain')
         else:
             self.target_domains = tf.identity(target_domains, name='Domain')
-            self.target_domains.set_shape([None, 1])
+            self.target_domains.set_shape([None])
         # forward pass
         self.generator = Generator('Generator', self.config)
         self.outputs = self.generator(self.inputs, self.target_domains, reuse=None)
@@ -51,10 +51,10 @@ class Model:
     def build_train(self, inputs=None, origin_domains=None, target_domains=None):
         # origin domains
         if origin_domains is None:
-            self.origin_domains = tf.placeholder(tf.int64, [None, 1], name='OriginDomain')
+            self.origin_domains = tf.placeholder(tf.int64, [None], name='OriginDomain')
         else:
             self.origin_domains = tf.identity(origin_domains, name='OriginDomain')
-            self.origin_domains.set_shape([None, 1])
+            self.origin_domains.set_shape([None])
         # build model
         self.build_model(inputs, target_domains)
         # reconstruction
@@ -155,9 +155,13 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
-        lr = tf.train.cosine_decay_restarts(1e-4,
-            global_step, 1000, t_mul=2.0, m_mul=1.0, alpha=1e-1)
-        lr = tf.train.exponential_decay(lr, global_step, 1000, 0.99)
+        lr_base = 1e-4
+        # lr = tf.train.cosine_decay_restarts(lr_base,
+        #     global_step, 1000, t_mul=2.0, m_mul=1.0, alpha=1e-1)
+        # lr = tf.train.exponential_decay(lr, global_step, 1000, 0.99)
+        lr = 2 * lr_base / self.config.max_steps * tf.cast(
+            self.config.max_steps - global_step, tf.float32)
+        lr = tf.clip_by_value(lr, lr_base * 1e-1, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
         # optimizer
         opt = tf.contrib.opt.NadamOptimizer(lr)
@@ -182,9 +186,13 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
-        lr = tf.train.cosine_decay_restarts(1e-4,
-            global_step, 1000, t_mul=2.0, m_mul=1.0, alpha=1e-1)
-        lr = tf.train.exponential_decay(lr, global_step, 1000, 0.99)
+        lr_base = 1e-4
+        # lr = tf.train.cosine_decay_restarts(lr_base,
+        #     global_step, 1000, t_mul=2.0, m_mul=1.0, alpha=1e-1)
+        # lr = tf.train.exponential_decay(lr, global_step, 1000, 0.99)
+        lr = 2 * lr_base / self.config.max_steps * tf.cast(
+            self.config.max_steps - global_step, tf.float32)
+        lr = tf.clip_by_value(lr, lr_base * 1e-1, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
         # optimizer
         opt = tf.contrib.opt.NadamOptimizer(lr)

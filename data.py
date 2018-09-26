@@ -168,7 +168,7 @@ class DataBase:
                     labels.append(_label)
         # stack data to form a batch (NCW)
         inputs = np.stack(inputs)
-        labels = np.expand_dims(np.array(labels), -1)
+        labels = np.array(labels)
         targets = np.random.randint(0, config.num_domains, labels.shape)
         # convert to NCHW format
         inputs = np.expand_dims(inputs, -2)

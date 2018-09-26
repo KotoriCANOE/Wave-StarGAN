@@ -151,10 +151,10 @@ class Train:
                 self.val_inputs, self.val_origins, self.val_targets):
                 feed_dict = {'Input:0': _inputs, 'OriginDomain:0': _origins,
                     'Domain:0': _targets}
-                fetches = [self.model.g_losses_acc]
+                fetches = [self.model.g_losses_acc, self.model.d_losses_acc]
                 sess.run(fetches, feed_dict)
             # loss summary
-            fetches = [self.loss_summary] + self.model.g_log_losses
+            fetches = [self.loss_summary] + self.model.g_log_losses + self.model.d_log_losses
             val_ret = sess.run(fetches)
             self.val_writer.add_summary(val_ret[0], global_step)
             # logging

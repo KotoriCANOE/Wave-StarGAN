@@ -384,7 +384,8 @@ class Discriminator(DiscriminatorConfig):
                 last = self.EBlock(last, 64, 3, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
-                patch_critic = slim.conv2d(last, 1, [1, 1], [1, 1], 'SAME', format,
+                if activation: patch_critic = activation(last)
+                patch_critic = slim.conv2d(patch_critic, 1, [1, 1], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
                 last_channels = last.shape.as_list()[-3]
