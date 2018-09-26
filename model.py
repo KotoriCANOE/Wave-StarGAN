@@ -85,17 +85,17 @@ class Model:
             update_ops.append(self.loss_summary('cls_loss', cls_loss, self.g_log_losses))
             # reconstruction loss
             lambda_rec = 10.0
-            rec_loss = lambda_rec * tf.losses.absolute_difference(inputs, reconstructs)
+            rec_loss = tf.losses.absolute_difference(inputs, reconstructsi, weights=lambda_rec)
             update_ops.append(self.loss_summary('rec_loss', rec_loss, self.g_log_losses))
             # total loss
             losses = tf.losses.get_losses(loss_key)
             main_loss = tf.add_n(losses, 'main_loss')
             # regularization loss - weight
-            reg_losses = tf.losses.get_regularization_losses('Generator')
-            reg_loss = tf.add_n(reg_losses)
-            update_ops.append(self.loss_summary('reg_loss', reg_loss))
+            # reg_losses = tf.losses.get_regularization_losses('Generator')
+            # reg_loss = tf.add_n(reg_losses)
+            # update_ops.append(self.loss_summary('reg_loss', reg_loss))
             # final loss
-            self.g_loss = main_loss + reg_loss
+            self.g_loss = main_loss# + reg_loss
             update_ops.append(self.loss_summary('loss', self.g_loss))
             # accumulate operator
             with tf.control_dependencies(update_ops):
@@ -140,11 +140,11 @@ class Model:
             losses = tf.losses.get_losses(loss_key)
             main_loss = tf.add_n(losses, 'main_loss')
             # regularization loss - weight
-            reg_losses = tf.losses.get_regularization_losses('Discriminator')
-            reg_loss = tf.add_n(reg_losses)
-            update_ops.append(self.loss_summary('reg_loss', reg_loss))
+            # reg_losses = tf.losses.get_regularization_losses('Discriminator')
+            # reg_loss = tf.add_n(reg_losses)
+            # update_ops.append(self.loss_summary('reg_loss', reg_loss))
             # final loss
-            self.d_loss = main_loss + reg_loss
+            self.d_loss = main_loss# + reg_loss
             update_ops.append(self.loss_summary('loss', self.d_loss))
             # accumulate operator
             with tf.control_dependencies(update_ops):

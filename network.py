@@ -329,7 +329,7 @@ class Discriminator(DiscriminatorConfig):
 
     def __call__(self, last, reuse=None):
         format = self.data_format
-        kernel1 = [1, 8]
+        kernel1 = [1, 4]
         stride1 = [1, 2]
         # function objects
         activation = self.activation
@@ -385,7 +385,7 @@ class Discriminator(DiscriminatorConfig):
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
                 if activation: patch_critic = activation(last)
-                patch_critic = slim.conv2d(patch_critic, 1, [1, 1], [1, 1], 'SAME', format,
+                patch_critic = slim.conv2d(patch_critic, 1, [1, 3], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
                 last_channels = last.shape.as_list()[-3]
