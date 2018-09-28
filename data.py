@@ -180,7 +180,8 @@ class DataBase:
         npz = np.load(batch_set)
         inputs = npz['inputs']
         labels = npz['labels']
-        return inputs, labels
+        targets = npz['targets']
+        return inputs, labels, targets
 
     def _gen_batches_packed(self, dataset, epoch_steps, num_epochs=1, start=0):
         _dataset = dataset

@@ -38,10 +38,10 @@ class DataPack:
                     continue
                 data_gen = self.data.gen_main(step)
             # generate data
-            inputs, labels = next(data_gen)
+            inputs, labels, targets = next(data_gen)
             # save to output file
             with open(ofile, 'wb') as fd:
-                np.savez_compressed(fd, inputs=inputs, labels=labels)
+                np.savez_compressed(fd, inputs=inputs, labels=labels, targets=targets)
             # logging
             if step % self.log_frequency == 0:
                 time_current = time.time()

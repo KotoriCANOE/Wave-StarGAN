@@ -50,3 +50,16 @@ discriminator: InstanceNorm, adv loss, cls loss
 steps: 16k
 generator: InstanceNorm, adv loss, cls loss
 discriminator: InstanceNorm, adv loss, cls loss
+
+## 11
+
+steps: 16k
+generator: InstanceNorm
+discriminator: InstanceNorm
+
+## 12
+
+steps: 16k
+generator: InstanceNorm
+discriminator: NoNorm
+

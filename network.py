@@ -256,7 +256,7 @@ class DiscriminatorConfig:
         self.num_domains = None
         # model parameters
         self.activation = ACTIVATION
-        self.normalization = 'Instance'
+        self.normalization = None
         self.embed_size = 512
         # train parameters
         self.random_seed = 0

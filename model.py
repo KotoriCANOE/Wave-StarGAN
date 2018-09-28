@@ -84,7 +84,7 @@ class Model:
             update_ops.append(self.loss_summary('cls_loss', cls_loss, self.g_log_losses))
             # reconstruction loss
             lambda_rec = 10.0
-            rec_loss = tf.losses.absolute_difference(inputs, reconstructsi, weights=lambda_rec)
+            rec_loss = tf.losses.absolute_difference(inputs, reconstructs, weights=lambda_rec)
             update_ops.append(self.loss_summary('rec_loss', rec_loss, self.g_log_losses))
             # total loss
             losses = tf.losses.get_losses(loss_key)
@@ -155,11 +155,8 @@ class Model:
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
         lr_base = 1e-4
-        # lr = tf.train.cosine_decay_restarts(lr_base,
-        #     global_step, 1000, t_mul=2.0, m_mul=1.0, alpha=1e-1)
-        # lr = tf.train.exponential_decay(lr, global_step, 1000, 0.99)
-        lr = 2 * lr_base / self.config.max_steps * tf.cast(
-            self.config.max_steps - global_step, tf.float32)
+        lr = 2 * lr_base / self.config.max_steps * (
+            0.75 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 1e-1, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
         # optimizer
@@ -186,11 +183,8 @@ class Model:
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
         lr_base = 1e-4
-        # lr = tf.train.cosine_decay_restarts(lr_base,
-        #     global_step, 1000, t_mul=2.0, m_mul=1.0, alpha=1e-1)
-        # lr = tf.train.exponential_decay(lr, global_step, 1000, 0.99)
-        lr = 2 * lr_base / self.config.max_steps * tf.cast(
-            self.config.max_steps - global_step, tf.float32)
+        lr = 2 * lr_base / self.config.max_steps * (
+            0.75 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 1e-1, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
         # optimizer
