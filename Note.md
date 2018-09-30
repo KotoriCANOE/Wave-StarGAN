@@ -63,3 +63,24 @@ steps: 16k
 generator: InstanceNorm
 discriminator: NoNorm
 
+## 13
+
+steps: 16k
+lr: 1e-4 in 0-4k, decay to 1e-5 in 4-12k, 1e-5 in 12-16k
+
+## 14
+
+steps: 32k
+lr: 1e-4 in 0-8k, decay to 1e-5 in 8-24k, 1e-5 in 24-32k
+
+## 15
+
+steps: 16k
+Discriminator - InBlock - stride: [1, 2] => [1, 1]
+
+## 16
+
+steps: 16k
+(unchanged)
+Discriminator - EBlock_1 - stride: [1, 2] => [1, 1]
+

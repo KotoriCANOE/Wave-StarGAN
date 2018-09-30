@@ -355,7 +355,7 @@ class Discriminator(DiscriminatorConfig):
                 collections=[tf.GraphKeys.GLOBAL_VARIABLES, tf.GraphKeys.MODEL_VARIABLES])
             # encoder
             with tf.variable_scope('InBlock'):
-                last = self.InBlock(last, 32, [1, 8], [1, 2],
+                last = self.InBlock(last, 32, [1, 8], [1, 1],
                     format, None, None, regularizer)
             with tf.variable_scope('EBlock_1'):
                 last = self.EBlock(last, 32, 0, kernel1, stride1,
