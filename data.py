@@ -126,7 +126,7 @@ class DataBase:
         else:
             offset = 0.0
         # read from file
-        data, rate = librosa.load(file, sr=sample_rate, mono=False,
+        data, rate = librosa.load(file, sr=sample_rate, mono=True,
             offset=offset, duration=slice_duration)
         if len(data.shape) < 2:
             data = np.expand_dims(data, 0)
@@ -230,8 +230,7 @@ class DataBase:
                         batch_set, self.config))
                     # yield the data beyond prefetch range
                     while len(futures) >= self.prefetch:
-                        future = futures.pop(0)
-                        yield future.result()
+                        yield futures.pop(0).result()
             # yield the remaining data
             for future in futures:
                 yield future.result()
@@ -322,14 +321,14 @@ class DataVoice(DataBase):
     def get_files_origin(self):
         # get file ids
         dataset_ids = os.listdir(self.dataset)
-        num_ids = len(dataset_ids)
-        self.num_domains = num_ids
-        self.config.num_domains = num_ids
+        num_labels = len(dataset_ids)
+        self.num_domains = num_labels
+        self.config.num_domains = num_labels
         dataset_ids = [os.path.join(self.dataset, i) for i in dataset_ids]
         # data list
         data_list = []
         filter_ext = ['.wav', '.flac', '.m4a', '.mp3']
-        for i in range(num_ids):
+        for i in range(num_labels):
             files = listdir_files(dataset_ids[i], filter_ext=filter_ext)
             for f in files:
                 data_list.append((f, i))

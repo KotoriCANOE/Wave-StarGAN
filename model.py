@@ -4,7 +4,7 @@ from network import Generator, Discriminator
 DATA_FORMAT = 'NCHW'
 
 class Model:
-    def __init__(self, config):
+    def __init__(self, config=None):
         # format parameters
         self.dtype = tf.float32
         self.data_format = DATA_FORMAT
@@ -16,11 +16,13 @@ class Model:
         self.loss_sums = []
         # copy all the properties from config object
         self.config = config
-        self.__dict__.update(config.__dict__)
+        if config is not None:
+            self.__dict__.update(config.__dict__)
         # internal parameters
         self.input_shape = [None, None, None, None]
         self.input_shape[-3 if self.data_format == 'NCHW' else -1] = self.in_channels
         self.output_shape = self.input_shape
+        self.domain_shape = [None]
 
     def build_model(self, inputs=None, target_domains=None):
         # inputs
@@ -31,10 +33,10 @@ class Model:
             self.inputs.set_shape(self.input_shape)
         # target domains
         if target_domains is None:
-            self.target_domains = tf.placeholder(tf.int64, [None], name='Domain')
+            self.target_domains = tf.placeholder(tf.int64, self.domain_shape, name='Domain')
         else:
             self.target_domains = tf.identity(target_domains, name='Domain')
-            self.target_domains.set_shape([None])
+            self.target_domains.set_shape(self.domain_shape)
         # forward pass
         self.generator = Generator('Generator', self.config)
         self.outputs = self.generator(self.inputs, self.target_domains, reuse=None)
@@ -50,10 +52,10 @@ class Model:
     def build_train(self, inputs=None, origin_domains=None, target_domains=None):
         # origin domains
         if origin_domains is None:
-            self.origin_domains = tf.placeholder(tf.int64, [None], name='OriginDomain')
+            self.origin_domains = tf.placeholder(tf.int64, self.domain_shape, name='OriginDomain')
         else:
             self.origin_domains = tf.identity(origin_domains, name='OriginDomain')
-            self.origin_domains.set_shape([None])
+            self.origin_domains.set_shape(self.domain_shape)
         # build model
         self.build_model(inputs, target_domains)
         # reconstruction
@@ -171,10 +173,10 @@ class Model:
         # save moving average of trainalbe variables
         update_ops = model.apply_ema(update_ops)
         # all the saver variables
-        self.svars = self.generator.svars
+        self.svars = model.svars
         # return optimizing op
         with tf.control_dependencies(update_ops):
-            train_op = tf.no_op('train')
+            train_op = tf.no_op('train_g')
         return train_op
 
     def train_d(self, global_step):
@@ -198,7 +200,7 @@ class Model:
             self.d_train_sums.append(tf.summary.histogram(var.op.name, var))
         # return optimizing op
         with tf.control_dependencies(update_ops):
-            train_op = tf.no_op('train')
+            train_op = tf.no_op('train_d')
         return train_op
 
     def loss_summary(self, name, loss, collection=None):

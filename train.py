@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import os
 import librosa
-from utils import bool_argument, eprint, reset_random, create_session, listdir_files
+from utils import bool_argument, eprint, reset_random, create_session
 from data import DataVoice as Data
 from model import Model
 
@@ -10,7 +10,6 @@ from model import Model
 class Train:
     def __init__(self, config):
         self.debug = None
-        self.max_steps = None
         self.random_seed = None
         self.device = None
         self.postfix = None
