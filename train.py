@@ -263,6 +263,7 @@ def main(argv=None):
     argp = argparse.ArgumentParser()
     # training parameters
     argp.add_argument('dataset')
+    argp.add_argument('--discriminator-model')
     bool_argument(argp, 'debug', False)
     argp.add_argument('--num-epochs', type=int, default=24)
     argp.add_argument('--max-steps', type=int)

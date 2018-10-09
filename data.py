@@ -134,8 +134,9 @@ class DataBase:
         samples = data.shape[-1]
         slice_samples = int(slice_duration * rate + 0.5)
         # normalization
-        norm_factor = 1 / audio_max
-        data *= norm_factor
+        if audio_max > 1e-6:
+            norm_factor = 1 / audio_max
+            data *= norm_factor
         # wrap padding
         if samples < slice_samples:
             data = np.pad(data, ((0, 0), (0, slice_samples - samples)), 'wrap')
