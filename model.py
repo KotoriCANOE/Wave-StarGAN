@@ -1,6 +1,6 @@
 import tensorflow as tf
 from network import Generator
-from network import Discriminator2 as Discriminator
+from network import Discriminator3 as Discriminator
 
 DATA_FORMAT = 'NCHW'
 
@@ -157,10 +157,10 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
-        lr_base = 1e-4
+        lr_base = 2e-4
         lr = 2 * lr_base / self.config.max_steps * (
             0.75 * self.config.max_steps - tf.cast(global_step, tf.float32))
-        lr = tf.clip_by_value(lr, lr_base * 1e-1, lr_base)
+        lr = tf.clip_by_value(lr, lr_base * 0.25, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
         # optimizer
         opt = tf.contrib.opt.NadamOptimizer(lr)
@@ -185,10 +185,10 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
-        lr_base = 1e-4
+        lr_base = 2e-4
         lr = 2 * lr_base / self.config.max_steps * (
             0.75 * self.config.max_steps - tf.cast(global_step, tf.float32))
-        lr = tf.clip_by_value(lr, lr_base * 1e-1, lr_base)
+        lr = tf.clip_by_value(lr, lr_base * 0.25, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
         # optimizer
         opt = tf.contrib.opt.NadamOptimizer(lr)
