@@ -159,8 +159,8 @@ class Model:
         # learning rate
         lr_base = 2e-4
         lr = 2 * lr_base / self.config.max_steps * (
-            0.75 * self.config.max_steps - tf.cast(global_step, tf.float32))
-        lr = tf.clip_by_value(lr, lr_base * 0.25, lr_base)
+            1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
+        lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
         # optimizer
         opt = tf.contrib.opt.NadamOptimizer(lr)
@@ -187,8 +187,8 @@ class Model:
         # learning rate
         lr_base = 2e-4
         lr = 2 * lr_base / self.config.max_steps * (
-            0.75 * self.config.max_steps - tf.cast(global_step, tf.float32))
-        lr = tf.clip_by_value(lr, lr_base * 0.25, lr_base)
+            1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
+        lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
         # optimizer
         opt = tf.contrib.opt.NadamOptimizer(lr)

@@ -624,6 +624,7 @@ class Discriminator3(DiscriminatorConfig):
             graph_def.ParseFromString(fd.read())
         input_map = {'Input:0': last}
         return_elements = ['Embedding:0',
+        #    'Discriminator/EBlock_7/concat_7:0']
             'Discriminator/EBlock_10/DenseConnection/concat:0']
         rets = tf.import_graph_def(graph_def, name='',
             input_map=input_map, return_elements=return_elements)

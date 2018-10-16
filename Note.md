@@ -84,3 +84,34 @@ steps: 16k
 (unchanged)
 Discriminator - EBlock_1 - stride: [1, 2] => [1, 1]
 
+## 18
+
+steps: 64k
+lr: 5e-4 in 0-16k, decay to 5e-5 in 16-48k, 5e-5 in 48-64k
+Discriminator - SpeakerRecognition(153) with original network
+
+## 19
+
+steps: 16k
+lr: 5e-4 in 0-8k, decay to 0 in 8-16k
+Discriminator - SpeakerRecognition(153) with original network
+
+## 20
+
+steps: 16k
+lr: 5e-4 in 0-8k, decay to 0 in 8-16k
+Discriminator - SpeakerRecognition(152) with DenseNet network
+batch size: 12 => 6
+
+## 21
+
+steps: 64k
+lr: 2e-4 in 0-32k, decay to 0 in 32-64k
+Discriminator - SpeakerRecognition(153) with original network
+
+## 22
+
+steps: 64k
+lr: 1e-4 in 0-32k, decay to 0 in 32-64k
+Discriminator - SpeakerRecognition(153) with original network
+
