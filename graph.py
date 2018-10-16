@@ -70,6 +70,7 @@ def main(argv=None):
     import argparse
     argp = argparse.ArgumentParser()
     # testing parameters
+    argp.add_argument('--discriminator-model')
     argp.add_argument('--postfix', default='')
     argp.add_argument('--train-dir', default='./train{postfix}.tmp')
     argp.add_argument('--model-dir', default='./model{postfix}.tmp')

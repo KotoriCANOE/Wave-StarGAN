@@ -461,7 +461,7 @@ class Discriminator2(DiscriminatorConfig):
             weights_regularizer=regularizer, variables_collections=collections)
         return last
 
-    def EBlock(self, last, l=4, k=32, channels=None, bottleneck=False,
+    def EBlock(self, last, l=2, channels=None,
         kernel=[1, 3], stride=[1, 2], format=DATA_FORMAT,
         activation=ACTIVATION, normalizer=None, regularizer=None, collections=None):
         initializer = tf.initializers.variance_scaling(
@@ -470,35 +470,19 @@ class Discriminator2(DiscriminatorConfig):
         last_channels = last.shape.as_list()[channel_index]
         # dense layers
         for _ in range(l):
-            skip = last
-            # bottleneck
-            if bottleneck:
-                if normalizer: last = normalizer(last)
-                if activation: last = activation(last)
-                last = slim.conv2d(last, k, [1, 1], [1, 1], 'SAME', format,
-                    1, None, None, weights_initializer=initializer,
-                    weights_regularizer=regularizer, variables_collections=collections)
-            # pre-activation
+            if channels is not None and _ == l - 1:
+                last_channels = channels
+            # convolution
+            last = slim.conv2d(last, last_channels, kernel, [1, 1], 'SAME', format,
+                1, None, None, weights_initializer=initializer,
+                weights_regularizer=regularizer, variables_collections=collections)
+            # post-activation
             if normalizer: last = normalizer(last)
             if activation: last = activation(last)
-            # convolution
-            last = slim.conv2d(last, k, kernel, [1, 1], 'SAME', format,
-                1, None, None, weights_initializer=initializer,
-                weights_regularizer=regularizer, variables_collections=collections)
-            # squeeze-and-excitation
-            last = layers.SEUnit(last, channels, format, collections)
-            # concatenate
-            last = tf.concat([skip, last], channel_index)
-            last_channels += k
-        # compression
-        if channels and channels != last_channels:
-            last = slim.conv2d(last, channels, [1, 1], [1, 1], 'SAME', format,
-                1, None, None, weights_initializer=initializer,
-                weights_regularizer=regularizer, variables_collections=collections)
-            last_channels = channels
         # pooling
-        strides = [1, 1] + stride if format == 'NCHW' else [1] + stride + [1]
-        last = tf.nn.avg_pool(last, strides, strides, 'SAME', format)
+        if stride and stride != [1, 1] and stride != 1:
+            strides = [1, 1] + stride if format == 'NCHW' else [1] + stride + [1]
+            last = tf.nn.avg_pool(last, strides, strides, 'SAME', format)
         # return
         return last
 
@@ -528,27 +512,24 @@ class Discriminator2(DiscriminatorConfig):
             # encoder
             with tf.variable_scope('InBlock'):
                 last = self.InBlock(last, 32, [1, 7], [1, 1],
-                    format, None, None, regularizer)
+                    format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_1'):
-                last = self.EBlock(last, 2, 16, None, False, kernel1, stride1,
+                last = self.EBlock(last, 2, 48, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_2'):
-                last = self.EBlock(last, 2, 16, None, False, kernel1, stride1,
+                last = self.EBlock(last, 2, 64, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_3'):
-                last = self.EBlock(last, 4, 16, None, False, kernel1, stride1,
+                last = self.EBlock(last, 2, 96, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_4'):
-                last = self.EBlock(last, 4, 16, None, False, kernel1, stride1,
+                last = self.EBlock(last, 2, 128, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_5'):
-                last = self.EBlock(last, 6, 16, None, False, kernel1, stride1,
+                last = self.EBlock(last, 2, 192, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_6'):
-                last = self.EBlock(last, 6, 16, None, False, kernel1, stride1,
-                    format, activation, normalizer, regularizer)
-            with tf.variable_scope('EBlock_7'):
-                last = self.EBlock(last, 8, 16, None, False, kernel1, stride1,
+                last = self.EBlock(last, 2, 256, kernel1, [1, 1],
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
                 last_channels = last.shape.as_list()[-3]
