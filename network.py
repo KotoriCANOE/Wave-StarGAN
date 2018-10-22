@@ -514,22 +514,22 @@ class Discriminator2(DiscriminatorConfig):
                 last = self.InBlock(last, 32, [1, 7], [1, 1],
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_1'):
-                last = self.EBlock(last, 2, 48, kernel1, stride1,
+                last = self.EBlock(last, 1, 48, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_2'):
-                last = self.EBlock(last, 2, 64, kernel1, stride1,
+                last = self.EBlock(last, 1, 64, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_3'):
-                last = self.EBlock(last, 2, 96, kernel1, stride1,
+                last = self.EBlock(last, 1, 96, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_4'):
-                last = self.EBlock(last, 2, 128, kernel1, stride1,
+                last = self.EBlock(last, 1, 128, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_5'):
-                last = self.EBlock(last, 2, 192, kernel1, stride1,
+                last = self.EBlock(last, 1, 192, kernel1, stride1,
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('EBlock_6'):
-                last = self.EBlock(last, 2, 256, kernel1, [1, 1],
+                last = self.EBlock(last, 1, 256, kernel1, [1, 1],
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
                 last_channels = last.shape.as_list()[-3]
@@ -605,7 +605,7 @@ class Discriminator3(DiscriminatorConfig):
             graph_def.ParseFromString(fd.read())
         input_map = {'Input:0': last}
         return_elements = ['Embedding:0',
-        #    'Discriminator/EBlock_7/concat_7:0']
+        #    'Discriminator/EBlock_6/Swish_1/mul:0']
             'Discriminator/EBlock_10/DenseConnection/concat:0']
         rets = tf.import_graph_def(graph_def, name='',
             input_map=input_map, return_elements=return_elements)

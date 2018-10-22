@@ -84,6 +84,11 @@ steps: 16k
 (unchanged)
 Discriminator - EBlock_1 - stride: [1, 2] => [1, 1]
 
+## 17
+
+steps: 64k
+Discriminator - DenseNet
+
 ## 18
 
 steps: 64k
@@ -113,5 +118,36 @@ Discriminator - SpeakerRecognition(153) with original network
 
 steps: 64k
 lr: 1e-4 in 0-32k, decay to 0 in 32-64k
+Discriminator - SpeakerRecognition(153) with original network
+
+## 23
+
+steps: 32k
+lr: 5e-4 in 0-8k, decay to 0 in 8-32k
+Discriminator - SpeakerRecognition(153) with original network
+
+## 24
+
+steps: 32k
+lr: 5e-4 in 0-8k, decay to 0 in 8-32k
+Discriminator - VGG-like network
+
+## 25
+
+steps: 32k
+lr: 5e-4 in 0-8k, decay to 0 in 8-32k
+Discriminator - SpeakerRecognition(155) with VGG-like network
+
+## 26
+
+steps: 128k
+lr: 5e-4 in 0-32k, decay to 0 in 32-128k
+Discriminator - SpeakerRecognition(153) with original network
+
+## 27
+
+steps: 128k
+lr(g): 1e-3 in 0-32k, decay to 0 in 32-128k
+lr(d): 1e-4 in 0-32k, decay to 0 in 32-128k
 Discriminator - SpeakerRecognition(153) with original network
 

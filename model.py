@@ -157,8 +157,8 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
-        lr_base = 2e-4
-        lr = 2 * lr_base / self.config.max_steps * (
+        lr_base = 1e-3
+        lr = 4 / 3 * lr_base / self.config.max_steps * (
             1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
@@ -185,8 +185,8 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
-        lr_base = 2e-4
-        lr = 2 * lr_base / self.config.max_steps * (
+        lr_base = 1e-4
+        lr = 4 / 3 * lr_base / self.config.max_steps * (
             1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
