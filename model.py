@@ -157,13 +157,14 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
-        lr_base = 1e-3
-        lr = 4 / 3 * lr_base / self.config.max_steps * (
-            1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
+        lr_base = 2e-4
+        lr = lr_base
+        # lr = 4 / 3 * lr_base / self.config.max_steps * (
+        #     1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
         # optimizer
-        opt = tf.contrib.opt.NadamOptimizer(lr)
+        opt = tf.train.AdamOptimizer(lr, beta1=0.5, beta2=0.999)
         with tf.control_dependencies(update_ops):
             grads_vars = opt.compute_gradients(self.g_loss, model.tvars)
             update_ops = [opt.apply_gradients(grads_vars, global_step)]
@@ -185,13 +186,14 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
-        lr_base = 1e-4
-        lr = 4 / 3 * lr_base / self.config.max_steps * (
-            1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
+        lr_base = 2e-4
+        lr = lr_base
+        # lr = 4 / 3 * lr_base / self.config.max_steps * (
+        #     1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
         # optimizer
-        opt = tf.contrib.opt.NadamOptimizer(lr)
+        opt = tf.train.AdamOptimizer(lr, beta1=0.5, beta2=0.999)
         with tf.control_dependencies(update_ops):
             grads_vars = opt.compute_gradients(self.d_loss, model.tvars)
             update_ops = [opt.apply_gradients(grads_vars)]

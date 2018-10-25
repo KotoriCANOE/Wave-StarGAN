@@ -146,8 +146,41 @@ Discriminator - SpeakerRecognition(153) with original network
 
 ## 27
 
-steps: 128k
-lr(g): 1e-3 in 0-32k, decay to 0 in 32-128k
-lr(d): 1e-4 in 0-32k, decay to 0 in 32-128k
-Discriminator - SpeakerRecognition(153) with original network
+steps: 32k
+lr(g): 5e-4 in 0-8k, decay to 0 in 8-32k
+lr(d): 2e-4 in 0-8k, decay to 0 in 8-32k
+
+## 28
+
+steps: 96k
+lr: 5e-4 in 0-24k, decay to 0 in 24-96k
+
+## 29
+
+steps: 32k
+lr(g): 2e-4 in 0-8k, decay to 0 in 8-32k
+lr(d): 5e-4 in 0-8k, decay to 0 in 8-32k
+
+## 30
+
+steps: 96k
+lr: 1e-4
+
+## 31
+
+steps: 96k
+lr: 1e-4
+Nadam - beta1: 0.9 => 0.5
+
+## 32
+
+steps: 96k
+lr: 1e-4
+Adam: beta1=0.5
+
+## 33
+
+steps: 96k
+lr: 2e-4
+Adam: beta1=0.5
 

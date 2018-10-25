@@ -79,7 +79,7 @@ class Train:
         if self.pretrain_dir and not self.restore:
             self.saver_pt = tf.train.Saver(self.model.rvars)
         # a Saver object to save recent checkpoints
-        self.saver_ckpt = tf.train.Saver(max_to_keep=5,
+        self.saver_ckpt = tf.train.Saver(max_to_keep=24,
             save_relative_paths=True)
         # a Saver object to save the variables without mappings
         # used for saving checkpoints throughout the entire training progress
@@ -274,7 +274,7 @@ def main(argv=None):
     argp.add_argument('--train-dir', default='./train{postfix}.tmp')
     argp.add_argument('--restore', action='store_true')
     argp.add_argument('--save-steps', type=int, default=5000)
-    argp.add_argument('--ckpt-period', type=int, default=600)
+    argp.add_argument('--ckpt-period', type=int, default=3600)
     argp.add_argument('--log-frequency', type=int, default=100)
     argp.add_argument('--log-file', default='train.log')
     argp.add_argument('--batch-size', type=int)
