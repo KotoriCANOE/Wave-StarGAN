@@ -184,3 +184,7 @@ steps: 96k
 lr: 2e-4
 Adam: beta1=0.5
 
+## 34
+
+steps: 96k
+rec loss: MS_SSIM
