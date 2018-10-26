@@ -187,4 +187,17 @@ Adam: beta1=0.5
 ## 34
 
 steps: 96k
-rec loss: MS_SSIM
+lr: 2e-4
+rec loss: MS-SSIM
+MS-SSIM weights: 0.1, 0.15, 0.2, 0.25, 0.3
+
+## 35
+
+steps: 96k
+lr: 2e-4 in 0-24k, decay to 0 in 24-96k
+fixed negative values in MS-SSIM
+
+## 36
+
+MS-SSIM weights: default
+

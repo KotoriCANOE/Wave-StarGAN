@@ -116,8 +116,8 @@ def MS_SSIM(img1, img2, weights=None, radius=5, sigma=1.5, L=1, data_format='NHW
         for _ in range(levels):
             ssim, cs = SS_SSIM(img1, img2, ret_cs=True, mean_metric=True,
                 radius=radius, sigma=sigma, L=L, data_format=data_format, one_dim=one_dim)
-            mssim.append(ssim)
-            mcs.append(cs)
+            mssim.append(tf.nn.relu(ssim)) # avoiding negative value
+            mcs.append(tf.nn.relu(cs)) # avoiding negative value
             img1 = tf.nn.avg_pool(img1, window, window, padding='SAME', data_format=data_format)
             img2 = tf.nn.avg_pool(img2, window, window, padding='SAME', data_format=data_format)
         # list to tensor of dim D+1
@@ -135,8 +135,8 @@ def MS_SSIM2(img1, img2, radius=5, sigma=[0.5, 1, 2, 4, 8], L=1, norm=True, data
         for _ in range(levels):
             ssim, cs = SS_SSIM(img1, img2, ret_cs=True, mean_metric=False,
                 radius=radius, sigma=sigma[_], L=L, data_format=data_format, one_dim=one_dim)
-            mssim.append(ssim)
-            mcs.append(cs)
+            mssim.append(tf.nn.relu(ssim)) # avoiding negative value
+            mcs.append(tf.nn.relu(cs)) # avoiding negative value
         # list to tensor of dim D+1
         mcs = tf.stack(mcs, axis=0)
         value = tf.reduce_prod(mcs[0:levels - 1], axis=0) * mssim[levels - 1]
