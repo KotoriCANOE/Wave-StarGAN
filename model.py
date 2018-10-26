@@ -89,8 +89,8 @@ class Model:
             # reconstruction loss
             lambda_rec = 10.0
             # rec_loss = tf.losses.absolute_difference(inputs, reconstructs, weights=lambda_rec)
-            rec_loss = 1 - layers.MS_SSIM(inputs, reconstructs,
-            #     weights=[0.1, 0.15, 0.2, 0.25, 0.3],
+            rec_loss = 1 - layers.MS_SSIM(inputs + 1, reconstructs + 1, L=2,
+                weights=[0.1, 0.15, 0.2, 0.25, 0.3],
                 radius=10, sigma=4.0, data_format=self.data_format, one_dim=True)
             update_ops.append(self.loss_summary('rec_loss', rec_loss, self.g_log_losses))
             # total loss

@@ -196,8 +196,9 @@ MS-SSIM weights: 0.1, 0.15, 0.2, 0.25, 0.3
 steps: 96k
 lr: 2e-4 in 0-24k, decay to 0 in 24-96k
 fixed negative values in MS-SSIM
+MS-SSIM weights: default
 
 ## 36
 
-MS-SSIM weights: default
+MS-SSIM weights: 0.1, 0.15, 0.2, 0.25, 0.3
 
