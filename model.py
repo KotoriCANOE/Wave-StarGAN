@@ -88,9 +88,9 @@ class Model:
             update_ops.append(self.loss_summary('cls_loss', cls_loss, self.g_log_losses))
             # reconstruction loss
             lambda_rec = 10.0
-            # rec_loss = tf.losses.absolute_difference(inputs, reconstructs, weights=lambda_rec)
-            rec_loss = 1 - layers.MS_SSIM(inputs + 1, reconstructs + 1, L=2,
-                weights=[0.1, 0.15, 0.2, 0.25, 0.3],
+            rec_loss = tf.losses.absolute_difference(inputs, reconstructs, weights=1.0)
+            rec_loss += 1 - layers.MS_SSIM(inputs + 1, reconstructs + 1, L=2,
+            #     weights=[0.1, 0.15, 0.2, 0.25, 0.3],
                 radius=10, sigma=4.0, data_format=self.data_format, one_dim=True)
             update_ops.append(self.loss_summary('rec_loss', rec_loss, self.g_log_losses))
             # total loss
@@ -153,7 +153,7 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
-        lr_base = 2e-4
+        lr_base = 1e-4
         lr = 4 / 3 * lr_base / self.config.max_steps * (
             1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
@@ -181,7 +181,7 @@ class Model:
         # dependencies to be updated
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
-        lr_base = 2e-4
+        lr_base = 1e-4
         lr = 4 / 3 * lr_base / self.config.max_steps * (
             1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
