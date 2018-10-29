@@ -639,17 +639,20 @@ class Discriminator3(DiscriminatorConfig):
                 patch_critic = slim.conv2d(patch_critic, 1, [1, 7], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             # domain classifier
-            with tf.variable_scope('OutBlock'):
-                last = embeddings
-                if self.dropout > 0:
-                    last = tf.layers.dropout(last, self.dropout, training=self.training)
-                last = slim.fully_connected(last, self.num_domains, None, None,
-                    weights_regularizer=regularizer)
-                domain_logit = last
+            with tf.variable_scope('PatchDomain'):
+                last = cnn_out
+                last_channels = last.shape.as_list()[-3]
+                patch_domain = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
+                    activation=activation, normalizer=normalizer, regularizer=regularizer)
+                patch_domain = slim.conv2d(patch_domain, self.num_domains, [1, 7], [1, 1], 'SAME', format,
+                    1, None, None, weights_regularizer=regularizer)
+                if format == 'NCHW':
+                    patch_domain = tf.transpose(patch_domain, [0, 2, 3, 1])
+                patch_domain = tf.squeeze(patch_domain)
         # trainable/model/save/restore variables
         self.tvars = tf.trainable_variables(self.name)
         self.mvars = tf.model_variables(self.name)
         self.mvars = [i for i in self.mvars if i not in self.tvars]
         self.svars = list(set(self.tvars + self.mvars))
         self.rvars = self.svars.copy()
-        return patch_critic, domain_logit
+        return patch_critic, patch_domain
