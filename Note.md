@@ -202,3 +202,12 @@ MS-SSIM weights: default
 
 rec loss: 1.0*L1 + MS-SSIM
 
+## 37
+
+patch-based classification loss
+
+## 38
+
+rec loss: MS-SSIM
+fixed issues that MS-SSIM is not in loss collection
+
