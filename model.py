@@ -81,8 +81,9 @@ class Model:
             tf.losses.add_loss(adv_loss)
             update_ops.append(self.loss_summary('adv_loss', adv_loss, self.g_log_losses))
             # domain classification loss
-            target_domains = tf.broadcast_to(tf.expand_dims(tf.one_hot(
-                target_domains, self.num_domains), -2), tf.shape(domain_logit))
+            target_domains = tf.one_hot(target_domains, self.num_domains)
+            # target_domains = tf.broadcast_to(tf.expand_dims(
+            #     target_domains, -2), tf.shape(domain_logit))
             cls_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
                 labels=target_domains, logits=domain_logit))
             tf.losses.add_loss(cls_loss)
@@ -135,8 +136,9 @@ class Model:
             tf.losses.add_loss(gp_loss)
             update_ops.append(self.loss_summary('gp_loss', gp_loss, self.d_log_losses))
             # domain classification loss
-            real_domain_label = tf.broadcast_to(tf.expand_dims(tf.one_hot(
-                real_domain_label, self.num_domains), -2), tf.shape(real_domain_logit))
+            real_domain_label = tf.one_hot(real_domain_label, self.num_domains)
+            # real_domain_label = tf.broadcast_to(tf.expand_dims(
+            #     real_domain_label, -2), tf.shape(real_domain_logit))
             cls_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
                 labels=real_domain_label, logits=real_domain_logit))
             tf.losses.add_loss(cls_loss)

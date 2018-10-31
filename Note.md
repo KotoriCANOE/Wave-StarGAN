@@ -211,3 +211,6 @@ patch-based classification loss
 rec loss: MS-SSIM
 fixed issues that MS-SSIM is not in loss collection
 
+## 39
+
+sample-based classification loss

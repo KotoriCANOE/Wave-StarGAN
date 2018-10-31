@@ -389,9 +389,9 @@ class Discriminator(DiscriminatorConfig):
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
                 last_channels = last.shape.as_list()[-3]
-                patch_critic = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
+                critic_logit = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
                     activation=activation, normalizer=normalizer, regularizer=regularizer)
-                patch_critic = slim.conv2d(patch_critic, 1, [1, 7], [1, 1], 'SAME', format,
+                critic_logit = slim.conv2d(critic_logit, 1, [1, 7], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
                 last = tf.reduce_mean(last, [-2, -1] if format == 'NCHW' else [-3, -2])
@@ -417,7 +417,7 @@ class Discriminator(DiscriminatorConfig):
         self.mvars = [i for i in self.mvars if i not in self.tvars]
         self.svars = list(set(self.tvars + self.mvars))
         self.rvars = self.svars.copy()
-        return patch_critic, domain_logit
+        return critic_logit, domain_logit
 
 # Discriminator 2
 
@@ -533,9 +533,9 @@ class Discriminator2(DiscriminatorConfig):
                     format, activation, normalizer, regularizer)
             with tf.variable_scope('PatchCritic'):
                 last_channels = last.shape.as_list()[-3]
-                patch_critic = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
+                critic_logit = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
                     activation=activation, normalizer=normalizer, regularizer=regularizer)
-                patch_critic = slim.conv2d(patch_critic, 1, [1, 7], [1, 1], 'SAME', format,
+                critic_logit = slim.conv2d(critic_logit, 1, [1, 7], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
                 last = tf.reduce_mean(last, [-2, -1] if format == 'NCHW' else [-3, -2])
@@ -561,7 +561,7 @@ class Discriminator2(DiscriminatorConfig):
         self.mvars = [i for i in self.mvars if i not in self.tvars]
         self.svars = list(set(self.tvars + self.mvars))
         self.rvars = self.svars.copy()
-        return patch_critic, domain_logit
+        return critic_logit, domain_logit
 
 # Discriminator 3
 
@@ -604,12 +604,10 @@ class Discriminator3(DiscriminatorConfig):
             graph_def = tf.GraphDef()
             graph_def.ParseFromString(fd.read())
         input_map = {'Input:0': last}
-        return_elements = ['Embedding:0',
-        #    'Discriminator/EBlock_6/Swish_1/mul:0']
-            'Discriminator/EBlock_10/DenseConnection/concat:0']
+        return_elements = ['Discriminator/EBlock_10/DenseConnection/concat:0']
         rets = tf.import_graph_def(graph_def, name='',
             input_map=input_map, return_elements=return_elements)
-        embeddings, cnn_out = rets
+        cnn_out, = rets
         # parameters
         format = self.data_format
         # function objects
@@ -634,25 +632,34 @@ class Discriminator3(DiscriminatorConfig):
             with tf.variable_scope('PatchCritic'):
                 last = cnn_out
                 last_channels = last.shape.as_list()[-3]
-                patch_critic = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
+                critic_logit = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
                     activation=activation, normalizer=normalizer, regularizer=regularizer)
-                patch_critic = slim.conv2d(patch_critic, 1, [1, 7], [1, 1], 'SAME', format,
+                critic_logit = slim.conv2d(critic_logit, 1, [1, 7], [1, 1], 'SAME', format,
                     1, None, None, weights_regularizer=regularizer)
             # domain classifier
-            with tf.variable_scope('PatchDomain'):
+            # with tf.variable_scope('PatchDomain'):
+            #     last = cnn_out
+            #     last_channels = last.shape.as_list()[-3]
+            #     domain_logit = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
+            #         activation=activation, normalizer=normalizer, regularizer=regularizer)
+            #     domain_logit = slim.conv2d(domain_logit, self.num_domains, [1, 7], [1, 1], 'SAME', format,
+            #         1, None, None, weights_regularizer=regularizer)
+            #     if format == 'NCHW':
+            #         domain_logit = tf.transpose(domain_logit, [0, 2, 3, 1])
+            #     domain_logit = tf.squeeze(domain_logit)
+            with tf.variable_scope('GlobalAveragePooling'):
                 last = cnn_out
-                last_channels = last.shape.as_list()[-3]
-                patch_domain = self.ResBlock(last, last_channels, [1, 3], [1, 1], format=format,
-                    activation=activation, normalizer=normalizer, regularizer=regularizer)
-                patch_domain = slim.conv2d(patch_domain, self.num_domains, [1, 7], [1, 1], 'SAME', format,
-                    1, None, None, weights_regularizer=regularizer)
-                if format == 'NCHW':
-                    patch_domain = tf.transpose(patch_domain, [0, 2, 3, 1])
-                patch_domain = tf.squeeze(patch_domain)
+                last = tf.reduce_mean(last, [-2, -1] if format == 'NCHW' else [-3, -2])
+            with tf.variable_scope('Domain'):
+                last_channels = last.shape.as_list()[-1]
+                domain_logit = slim.fully_connected(last, last_channels, activation, None,
+                    weights_regularizer=regularizer)
+                domain_logit = slim.fully_connected(domain_logit, self.num_domains, None, None,
+                    weights_regularizer=regularizer)
         # trainable/model/save/restore variables
         self.tvars = tf.trainable_variables(self.name)
         self.mvars = tf.model_variables(self.name)
         self.mvars = [i for i in self.mvars if i not in self.tvars]
         self.svars = list(set(self.tvars + self.mvars))
         self.rvars = self.svars.copy()
-        return patch_critic, patch_domain
+        return critic_logit, domain_logit
