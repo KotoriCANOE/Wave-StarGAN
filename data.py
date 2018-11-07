@@ -152,21 +152,15 @@ class DataBase:
         inputs = []
         labels = []
         # load all the data
-        if config.threads == 1:
-            for file, label in batch_set:
-                _input, _label = cls.process_sample(file, label, config)
+        with ThreadPoolExecutor(config.threads) as executor:
+            futures = []
+            for _file, _label in batch_set:
+                futures.append(executor.submit(cls.process_sample, _file, _label, config))
+            # final data
+            while len(futures) > 0:
+                _input, _label = futures.pop(0).result()
                 inputs.append(_input)
                 labels.append(_label)
-        else:
-            with ThreadPoolExecutor(config.threads) as executor:
-                futures = []
-                for file, label in batch_set:
-                    futures.append(executor.submit(cls.process_sample, file, label, config))
-                # final data
-                while len(futures) > 0:
-                    _input, _label = futures.pop(0).result()
-                    inputs.append(_input)
-                    labels.append(_label)
         # stack data to form a batch (NCW)
         inputs = np.stack(inputs)
         labels = np.array(labels)
@@ -185,7 +179,6 @@ class DataBase:
         return inputs, labels, targets
 
     def _gen_batches_packed(self, dataset, epoch_steps, num_epochs=1, start=0):
-        _dataset = dataset
         max_steps = epoch_steps * num_epochs
         from concurrent.futures import ProcessPoolExecutor
         with ProcessPoolExecutor(self.processes) as executor:
@@ -197,7 +190,7 @@ class DataBase:
                 step_stop = min(epoch_steps, max_steps - step_offset)
                 # loop over steps within an epoch
                 for step in range(step_start, step_stop):
-                    batch_set = _dataset[step]
+                    batch_set = dataset[step]
                     futures.append(executor.submit(self.extract_batch_packed,
                         batch_set))
                     # yield the data beyond prefetch range

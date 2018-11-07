@@ -1,7 +1,7 @@
 import tensorflow as tf
 import layers
 from network import Generator
-from network import Discriminator3 as Discriminator
+from network import Discriminator as Discriminator
 
 DATA_FORMAT = 'NCHW'
 

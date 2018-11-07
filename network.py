@@ -135,9 +135,7 @@ class Generator(GeneratorConfig):
             domains = tf.one_hot(domains, self.num_domains)
             domains = tf.reshape(domains, (-1, self.num_domains, 1, 1))
             domains_shape = tf.shape(last)
-            domains_mul = [1, 1, 1, 1]
-            domains_mul[channel_index] = self.num_domains
-            domains_shape *= domains_mul
+            domains_shape = domains_shape * [1, 0, 1, 1] + [0, self.num_domains, 0, 0]
             domains = tf.broadcast_to(domains, domains_shape)
             domains_shape = [None] * 4
             domains_shape[channel_index] = self.num_domains
@@ -145,7 +143,7 @@ class Generator(GeneratorConfig):
             last = tf.concat([last, domains], channel_index)
             # encoder
             with tf.variable_scope('InBlock'):
-                last = self.EBlock(last, 16, 0, [1, 8], [1, 1],
+                last = self.EBlock(last, 16, 0, [1, 7], [1, 1],
                     format, None, None, regularizer)
             with tf.variable_scope('EBlock_0'):
                 skips.append(last)
@@ -221,7 +219,7 @@ class Generator(GeneratorConfig):
                     format, activation, normalizer, regularizer)
                 last = skip_connection(last, skips.pop())
             with tf.variable_scope('OutBlock'):
-                last = self.EBlock(last, self.in_channels, 0, [1, 8], [1, 1],
+                last = self.EBlock(last, self.in_channels, 0, [1, 7], [1, 1],
                     format, activation, normalizer, regularizer)
         # trainable/model/save/restore variables
         self.tvars = tf.trainable_variables(self.name)
@@ -395,22 +393,12 @@ class Discriminator(DiscriminatorConfig):
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
                 last = tf.reduce_mean(last, [-2, -1] if format == 'NCHW' else [-3, -2])
-            with tf.variable_scope('FCBlock'):
-                skip = last
+            with tf.variable_scope('Domain'):
                 last_channels = last.shape.as_list()[-1]
-                last = slim.fully_connected(last, last_channels, activation, None,
+                domain_logit = slim.fully_connected(last, last_channels, activation, None,
                     weights_regularizer=regularizer)
-                last = slim.fully_connected(last, self.embed_size, None, None,
+                domain_logit = slim.fully_connected(domain_logit, self.num_domains, None, None,
                     weights_regularizer=regularizer)
-                if self.embed_size == last_channels:
-                    last += skip
-                self.embeddings = last
-            with tf.variable_scope('OutBlock'):
-                if self.dropout > 0:
-                    last = tf.layers.dropout(last, self.dropout, training=self.training)
-                last = slim.fully_connected(last, self.num_domains, None, None,
-                    weights_regularizer=regularizer)
-                domain_logit = last
         # trainable/model/save/restore variables
         self.tvars = tf.trainable_variables(self.name)
         self.mvars = tf.model_variables(self.name)
@@ -539,22 +527,12 @@ class Discriminator2(DiscriminatorConfig):
                     1, None, None, weights_regularizer=regularizer)
             with tf.variable_scope('GlobalAveragePooling'):
                 last = tf.reduce_mean(last, [-2, -1] if format == 'NCHW' else [-3, -2])
-            with tf.variable_scope('FCBlock'):
-                skip = last
+            with tf.variable_scope('Domain'):
                 last_channels = last.shape.as_list()[-1]
-                last = slim.fully_connected(last, last_channels, activation, None,
+                domain_logit = slim.fully_connected(last, last_channels, activation, None,
                     weights_regularizer=regularizer)
-                last = slim.fully_connected(last, self.embed_size, None, None,
+                domain_logit = slim.fully_connected(domain_logit, self.num_domains, None, None,
                     weights_regularizer=regularizer)
-                if self.embed_size == last_channels:
-                    last += skip
-                self.embeddings = last
-            with tf.variable_scope('OutBlock'):
-                if self.dropout > 0:
-                    last = tf.layers.dropout(last, self.dropout, training=self.training)
-                last = slim.fully_connected(last, self.num_domains, None, None,
-                    weights_regularizer=regularizer)
-                domain_logit = last
         # trainable/model/save/restore variables
         self.tvars = tf.trainable_variables(self.name)
         self.mvars = tf.model_variables(self.name)
