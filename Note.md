@@ -214,3 +214,5 @@ fixed issues that MS-SSIM is not in loss collection
 ## 39
 
 sample-based classification loss
+classification: FC layers are now all re-trained
+
