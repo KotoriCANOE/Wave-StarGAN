@@ -112,12 +112,22 @@ class Model:
         loss_key = 'DiscriminatorLoss'
         real_critic, real_domain_logit = self.discriminator(real, reuse=True)
         # WGAN lipschitz-penalty
-        def random_interpolate():
-            alpha = tf.random_uniform(shape=tf.shape(real), minval=0., maxval=1.)
-            differences = fake - real
-            interpolates = alpha * differences + real
-            return interpolates
-        inter = random_interpolate()
+        def random_interpolate(dragan=False):
+            shape = tf.shape(real)
+            batch_shape = shape * [1, 0, 0, 0] + [0, 1, 1, 1]
+            if dragan:
+                eps = tf.random_uniform(shape, minval=0., maxval=1.)
+                x_mean, x_var = tf.nn.moments(real, axes=[0, 1, 2, 3])
+                x_std = tf.sqrt(x_var)
+                noise = 0.5 * x_std * eps
+                alpha = tf.random_uniform(batch_shape, minval=-1., maxval=1.)
+                interpolated = tf.clip_by_value(real + alpha * noise, -1., 1.)
+            else:
+                alpha = tf.random_uniform(batch_shape, minval=0., maxval=1.)
+                differences = fake - real
+                interpolated = alpha * differences + real
+            return interpolated
+        inter = random_interpolate(False)
         inter_critic, inter_domain = self.discriminator(inter, reuse=True)
         gradients = tf.gradients(inter_critic, [inter])[0]
         slopes = tf.norm(tf.layers.flatten(gradients), axis=1)
@@ -159,7 +169,7 @@ class Model:
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Generator')
         # learning rate
         lr_base = 1e-4
-        lr = 4 / 3 * lr_base / self.config.max_steps * (
+        lr = 2 * lr_base / self.config.max_steps * (
             1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.g_train_sums.append(tf.summary.scalar('Generator/LR', lr))
@@ -187,7 +197,7 @@ class Model:
         update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS, 'Discriminator')
         # learning rate
         lr_base = 1e-4
-        lr = 4 / 3 * lr_base / self.config.max_steps * (
+        lr = 2 * lr_base / self.config.max_steps * (
             1.0 * self.config.max_steps - tf.cast(global_step, tf.float32))
         lr = tf.clip_by_value(lr, lr_base * 0, lr_base)
         self.d_train_sums.append(tf.summary.scalar('Discriminator/LR', lr))
