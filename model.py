@@ -121,9 +121,11 @@ class Model:
                 x_std = tf.sqrt(x_var)
                 noise = 0.5 * x_std * eps
                 alpha = tf.random_uniform(batch_shape, minval=-1., maxval=1.)
+                alpha.set_shape([None, self.in_channels, None, None])
                 interpolated = tf.clip_by_value(real + alpha * noise, -1., 1.)
             else:
                 alpha = tf.random_uniform(batch_shape, minval=0., maxval=1.)
+                alpha.set_shape([None, self.in_channels, None, None])
                 differences = fake - real
                 interpolated = alpha * differences + real
             return interpolated

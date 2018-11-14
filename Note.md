@@ -216,3 +216,8 @@ fixed issues that MS-SSIM is not in loss collection
 sample-based classification loss
 classification: FC layers are now all re-trained
 
+## 40
+
+rec loss: L1
+fixed random interpolation in WGAN-GP
+
