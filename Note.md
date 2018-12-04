@@ -221,3 +221,17 @@ classification: FC layers are now all re-trained
 rec loss: L1
 fixed random interpolation in WGAN-GP
 
+## 41
+
+(unchanged)
+rec loss: MS-SSIM
+batch size: 12 => 8
+
+## 42
+
+rec loss: L1 (1.0)
+
+## 43
+
+rec loss: L1 (0.1)
+
