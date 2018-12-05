@@ -3,7 +3,7 @@ import numpy as np
 import os
 import librosa
 from utils import bool_argument, eprint, reset_random, create_session
-from data import DataVoice as Data
+from data import DataVCTK as Data
 from model import Model
 
 # class for training session

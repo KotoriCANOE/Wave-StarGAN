@@ -143,6 +143,8 @@ class Generator(GeneratorConfig):
             last = tf.concat([last, domains], channel_index)
             # encoder
             with tf.variable_scope('InBlock'):
+                last = slim.conv2d(last, 16, [1, 1], [1, 1], 'SAME', format,
+                    1, activation, None, None, None, regularizer)
                 last = self.EBlock(last, 16, 0, [1, 7], [1, 1],
                     format, None, None, regularizer)
             with tf.variable_scope('EBlock_0'):

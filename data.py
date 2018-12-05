@@ -312,17 +312,22 @@ class DataVoice(DataBase):
             <= cls.get_duration(f) <= max_length]
         return data_list
 
-    def get_files_origin(self):
-        # get file ids
-        dataset_ids = os.listdir(self.dataset)
+    def get_file_ids(self):
+        dataset_ids = sorted(os.listdir(self.dataset))
         num_labels = len(dataset_ids)
         self.num_domains = num_labels
         self.config.num_domains = num_labels
         dataset_ids = [os.path.join(self.dataset, i) for i in dataset_ids]
+        return dataset_ids
+
+    def get_files_origin(self):
+        # get file ids
+        dataset_ids = self.get_file_ids()
         # data list
         data_list = []
         filter_ext = ['.wav', '.flac', '.m4a', '.mp3']
-        for i in range(num_labels):
+        for i in range(self.num_domains):
+            print('Label {}: {}'.format(i, dataset_ids[i]))
             files = listdir_files(dataset_ids[i], filter_ext=filter_ext)
             for f in files:
                 data_list.append((f, i))
@@ -335,3 +340,13 @@ class DataVoice(DataBase):
         if self.shuffle:
             random.shuffle(data_list)
         return data_list
+
+class DataVCTK(DataVoice):
+    def get_file_ids(self):
+        wav_path = os.path.join(self.dataset, 'wav48')
+        dataset_ids = sorted(os.listdir(wav_path))
+        num_labels = len(dataset_ids)
+        self.num_domains = num_labels
+        self.config.num_domains = num_labels
+        dataset_ids = [os.path.join(wav_path, i) for i in dataset_ids]
+        return dataset_ids
