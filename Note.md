@@ -235,3 +235,12 @@ rec loss: L1 (1.0)
 
 rec loss: L1 (0.1)
 
+## 44
+
+dataset: VCTK
+rec loss: L1 (0.1)
+
+## 45
+
+rec loss: L1 (1.0)
+
