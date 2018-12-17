@@ -143,3 +143,41 @@ def MS_SSIM2(img1, img2, radius=5, sigma=[0.5, 1, 2, 4, 8], L=1, norm=True, data
         value = tf.reduce_mean(value)
         if norm: value **= 1.0 / levels
     return value
+
+def DiscriminatorLoss(real, fake, loss_type):
+    loss_type = loss_type.lower()
+    if 'wgan' in loss_type:
+        real_loss = -tf.reduce_mean(real)
+        fake_loss = tf.reduce_mean(fake)
+    elif loss_type == 'lsgan':
+        real_loss = tf.reduce_mean(tf.squared_difference(real, 1.0))
+        fake_loss = tf.reduce_mean(tf.square(fake))
+    elif loss_type == 'gan' or loss_type == 'dragan':
+        real_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=tf.ones_like(real), logits=real))
+        fake_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=tf.zeros_like(fake), logits=fake))
+    elif loss_type == 'hinge':
+        real_loss = tf.reduce_mean(tf.nn.relu(1.0 - real))
+        fake_loss = tf.reduce_mean(tf.nn.relu(1.0 + fake))
+    else:
+        real_loss = 0
+        fake_loss = 0
+    loss = real_loss + fake_loss
+    return loss
+
+def GeneratorLoss(fake, loss_type):
+    loss_type = loss_type.lower()
+    if 'wgan' in loss_type:
+        fake_loss = -tf.reduce_mean(fake)
+    elif loss_type == 'lsgan':
+        fake_loss = tf.reduce_mean(tf.squared_difference(fake, 1.0))
+    elif loss_type == 'gan' or loss_type == 'dragan':
+        fake_loss = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(
+            labels=tf.ones_like(fake), logits=fake))
+    elif loss_type == 'hinge':
+        fake_loss = -tf.reduce_mean(fake)
+    else:
+        fake_loss = 0
+    loss = fake_loss
+    return loss
