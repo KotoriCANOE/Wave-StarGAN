@@ -257,7 +257,6 @@ class DiscriminatorConfig:
         # model parameters
         self.activation = ACTIVATION
         self.normalization = None
-        self.embed_size = 512
         # train parameters
         self.random_seed = 0
         self.weight_decay = 1e-6

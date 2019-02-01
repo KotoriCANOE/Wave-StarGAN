@@ -1,4 +1,4 @@
-# Note
+# Wave-StarGAN Note
 
 ## 01
 
@@ -244,3 +244,16 @@ rec loss: L1 (0.1)
 
 rec loss: L1 (1.0)
 
+## 46
+
+(unchanged)
+rec loss: L1 (1.0) + MS-SSIM (1.0)
+
+## 47
+
+(unchanged)
+discriminator: NoNorm => InstanceNorm
+
+## 48
+
+rec loss: L1 (10.0)
