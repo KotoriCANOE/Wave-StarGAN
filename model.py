@@ -87,14 +87,15 @@ class Model:
             tf.losses.add_loss(cls_loss)
             update_ops.append(self.loss_summary('cls_loss', cls_loss, self.g_log_losses))
             # reconstruction loss
-            rec_loss = 0
-            rec_loss += tf.losses.absolute_difference(inputs, reconstructs, weights=1.0,
+            rec_loss = tf.losses.absolute_difference(inputs, reconstructs, weights=10.0,
                 loss_collection=None)
-            # rec_loss += 1 - layers.MS_SSIM(inputs + 1, reconstructs + 1, L=2,
+            tf.losses.add_loss(rec_loss)
+            update_ops.append(self.loss_summary('l1_loss', rec_loss, self.g_log_losses))
+            # rec_loss = 1 - layers.MS_SSIM(inputs + 1, reconstructs + 1, L=2,
             #     weights=[0.1, 0.15, 0.2, 0.25, 0.3],
             #     radius=10, sigma=4.0, data_format=self.data_format, one_dim=True)
-            tf.losses.add_loss(rec_loss)
-            update_ops.append(self.loss_summary('rec_loss', rec_loss, self.g_log_losses))
+            # tf.losses.add_loss(rec_loss)
+            # update_ops.append(self.loss_summary('ssim_loss', rec_loss, self.g_log_losses))
             # total loss
             losses = tf.losses.get_losses(loss_key)
             main_loss = tf.add_n(losses, 'main_loss')

@@ -244,3 +244,25 @@ rec loss: L1 (0.1)
 
 rec loss: L1 (1.0)
 
+## 46
+
+(unchanged)
+rec loss L1 (1.0) + MS-SSIM (1.0)
+
+## 47
+
+(unchanged)
+rec loss: L1 (1.0)
+adv loss: WGAN-GP => DRAGAN
+
+## 48
+
+rec loss: L1 (10.0)
+discriminator: NoNorm (the same as previous)
+
+## 49
+
+(unchanged)
+rec loss: L1(10.0)
+discriminator: InstanceNorm
+
