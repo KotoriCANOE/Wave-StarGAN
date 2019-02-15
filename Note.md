@@ -1,4 +1,4 @@
-# Note
+# Wave-StarGAN Note
 
 ## 01
 
@@ -247,7 +247,7 @@ rec loss: L1 (1.0)
 ## 46
 
 (unchanged)
-rec loss L1 (1.0) + MS-SSIM (1.0)
+rec loss: L1 (1.0) + MS-SSIM (1.0)
 
 ## 47
 
